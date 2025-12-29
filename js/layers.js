@@ -47,7 +47,6 @@ addLayer("r", {
     requires: new Decimal(33), resource: "Rebirths", baseResource: "Multipliers", 
     baseAmount() { return player.m.points },
     type: "normal", exponent: 0.5,
-    get_gain() { return getLinearStatGain(this.layer) }
 });
 
 addLayer("ur", {
@@ -55,7 +54,6 @@ addLayer("ur", {
     requires: new Decimal(33), resource: "Ultra Rebirths", baseResource: "Rebirths", 
     baseAmount() { return player.r.points },
     type: "normal", exponent: 0.5,
-    get_gain() { return getLinearStatGain(this.layer) }
 });
 
 tierIds.forEach((id, index) => {
@@ -65,7 +63,6 @@ tierIds.forEach((id, index) => {
         baseResource: index === 0 ? "Ultra Rebirths" : tierNames[index-1] + "s",
         baseAmount() { return player[index === 0 ? "ur" : tierIds[index-1]].points },
         requires: new Decimal(33), type: "normal", exponent: 0.5,
-        get_gain() { return getLinearStatGain(this.layer) }
     });
 });
 
@@ -77,7 +74,6 @@ loopIds.forEach((id, index) => {
         baseResource: index === 0 ? "Infinity Rebirths" : loopIds[index-1] + "s",
         baseAmount() { return player[index === 0 ? "ir" : loopIds[index-1]].points },
         requires: new Decimal(33), type: "normal", exponent: 0.5,
-        get_gain() { return getLinearStatGain(this.layer) },
         milestones: {
             0: { requirementDescription: "5 Points", effectDescription: "Keep Multi.", done() { return player[this.layer].points.gte(5) } },
             1: { requirementDescription: "10 Points", effectDescription: "Keep Rebirths.", done() { return player[this.layer].points.gte(10) } },
@@ -85,12 +81,3 @@ loopIds.forEach((id, index) => {
         }
     });
 });
-
-// Helper to calculate gain capped at 1 for linear progression
-function getLinearStatGain(layer) {
-    let l = layers[layer];
-    if (l.baseAmount().lt(l.requires)) return new Decimal(0);
-    // Standard TMT formula but forced to a maximum of 1
-    let gain = l.baseAmount().div(l.requires).pow(l.exponent);
-    return gain.floor().min(1);
-}
